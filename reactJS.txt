@@ -1,0 +1,229 @@
+                                                                                            What is React.js       
+                                                                                        ------------------------   
+*what is React:
+   -react is "individual building blocks(components)" which we combine together to build a user interface(react is a client-side Javascript library)
+   -why React instead of just "Javascript": by giving "a higher level syntax" it makes building "modern, rich, complex user interfaces" easier, where we write code in a declarative way(component-focused)
+
+*declarative approach: define the desired target state(s) and let react figure out the actual javascript DOM instructions
+
+*single-page application: is an app that doesn't need to reload the page during its use and works within a browser
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                                          Components in React         
+                                                                                  -----------------------------------  
+*introducting components:
+   -what are Components:
+      -components are "reusable building blocks" in user interface(a combination of HTML, CSS, and JS)
+      -acting like JavaScript functions they accept arbitrary inputs (called “props”) and return "react elements(JSX)" describing what should appear on the screen
+
+   -why components: because of that "reusability aspec", and it allows to "separate our concerns", both are important concepts in programming
+      -"reusable building blocks" helps avoid repetition(repeat ourselves)
+      -"separation of concerns": helps us with keeping code base small and manageable
+
+   -component rule: only have one root element(element of JSX code), per a return statement
+
+   -component conventions: starting with a capital character
+
+   -the concept of composition: whenever you combine components, you are using composition, and react has a powerful composition model
+
+*good practice in Components:
+   -splitting components into multiple components
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
+                                                                                             JSX in React    
+                                                                                  -----------------------------------  
+*introducting JSX:
+   -JSX: stands for JavaScript XML(HTML is XML), simply an HTML code is written in React development environment
+
+   -JSX in deep: React.createElement("div", {}, content)
+
+*dynamic data in JSX code:
+   -replace hard code data: with opening and closing curly braces,  in curly braces, you can run basic "javaScript expressions(produce value)"
+
+*rendering lists of data in JSX code:
+   -if you do output an array of JSX elements in JSX code, then React is capable of simply rendering these elements side by side
+   -the way to output an array of JSX elements: map built-in JS method, array of JSX elements itself,...
+
+   -React has a special concept when it comes to rendering lists of data a concept which exists to ensure that React is able to update and render such lists efficiently without performance losses,
+    or bugs, which may occur.
+   -how rendering lists of data in JSX code works:
+      - React, renders the new element and updates all the element and replace their content(re-new their state),
+
+*keys in lists of data in JSX code: 
+   -keys: help React identify which elements in a array have changed, are added, or are removed, other wise it updates all the element and re-new their content(re-new their state)
+   -where to put keys: put unique key inside "key attribute of element JSX code" when work with "an array of JSX elements"
+
+*attribute of JSX element:
+   -className
+   -onClick
+   -onChange
+   -value
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                                            Props in React         
+                                                                                  -----------------------------------  
+*introducting props:
+   -what are props(properties): 
+      -they are read-only, it's an object which stores the value of attributes of a tag and work similar to the HTML attributes
+      -it gives a way to pass data from one component to other components, it's similar to "function arguments"
+
+   -why props important: it allows to share data across components, it allows to make components reusable(different component has different data)
+
+*props.children: allows to create wrapper components, a special type of component                             
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------                                                                                     
+                                                                                       React & ReactDom packages    
+                                                                                  -----------------------------------  
+*React packages:is responsible for creating views(JSX)
+
+*ReactDOM packages: is responsible to actually render UI in the browser. Often, you will only use it for one single thing: mounting your application to the index.html file with ReactDOM.render()
+
+*why separate them(react & reactDom): to make react is used in both web and mobile, while reactDom is used only in web
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                                            Create React App         
+                                                                                  -----------------------------------  
+*create react app(CRA) is a tool to create single-page React applications that is officially supported by the React team
+   -advantage:
+      -simplifies our development process, install all tools necessary to build react app(include react, react-dom,...)
+      -it adds a couple of transformation steps(transformation of "JSX code" to "HTML code", CSS Modules,...)
+      -also help optimize React code before push it to a production server
+
+*syntax in command line: npx create-react-app folder-name
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                                            Hooks in React        
+                                                                                  ----------------------------------- 
+*introducing Hooks: Hooks are a new addition in React 16.8, react-hooks let you use state and other React features without writing a class
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                              React State, useState & Working with Events         
+                                                                              -------------------------------------------
+*introducting State:
+   -state contains data or information about the component, when "the state object(state)" changes, the component of that state re-renders
+
+   -when to use state: if you have data, which might change, and where changes to that data should be reflected on the user interface then you need state
+
+   -how to store and change state: we use Class or "useState react-hook" in react
+
+*store and change state using "useState react-hook":
+   -how to use useState react-hook:
+      -import the useState Hook from React, and call useState inside of component function but outside the return JSX
+      -useState take a value(maybe object) to call, that is then becomes the state of the component, example: useState(value)
+      -return value of useState is an array with pair of values 
+         -first value of the array: the value itself(state of component)
+         -second value of the array: "a update function" which can later call with a new value to change the value(state)
+
+   -important about useState: 
+      -calling "state updating function" doesn't change the value right away, but instead "schedules" state update 
+      -whenever update state that depend on the previous state, should pass in a function to "the update function", and the function you pass in will receive the previous state snapshot
+         -theoretically, if you schedule a lot of state updates at the same time, you could be depending on an outdated or incorrect state snapshot
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
+                                                                                            Term in Component      
+                                                                              -------------------------------------------
+*lifting state up: moving data from a child component to some parent component
+
+*pass state data via props: moving data from parent component to some a child component
+
+*two way binding(input/components): 
+   -definition:
+      -two-way binding means that any data-related changes affecting the model are immediately propagated to the matching view(s),
+       and any changes made in the view(s) are immediately reflected in the underlying model
+      -whenever use two way binding you are controlling or vice versa
+
+   -controlled input/component: data is handled by other component/React
+
+   -uncontrolled input/component: data is handled by component/DOM itself
+
+*container/statefull component: a stateful component is a component that holds and magnage state
+
+*presentational/stateless component: stateless components, by contrast, have no state(just receive state from props), it's just there to output some data
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
+                                                                                              CSS Modules    
+                                                                              -------------------------------------------
+*CSS Module: is a CSS file in which all class names and animation names are scoped locally by default
+
+*how to use: 
+   -first, change file extension ".css" to ".module.css" and behind the scene, create react app are already configured to support CSS Modules(.module.css)
+   -second, import an object(naming "styles") from "css module file", and in that object, you'll have every "class you defined" as "a property of that object"
+
+*what css module does: what the build process does under the hood is it takes those CSS classes and a CSS file and basically changes those class names to be unique
+ 
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                                THE END
+*notice:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
