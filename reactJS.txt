@@ -37,6 +37,8 @@
 
    -JSX in deep: React.createElement("div", {}, content)
 
+*JSX limitations: if component return "adjacent root level JSX elements", we'll get an error
+
 *dynamic data in JSX code:
    -replace hard code data: with opening and closing curly braces,  in curly braces, you can run basic "javaScript expressions(produce value)"
 
@@ -58,6 +60,7 @@
    -onClick
    -onChange
    -value
+   -ref
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                                                                                             Props in React         
@@ -95,6 +98,11 @@
                                                                                             Hooks in React        
                                                                                   ----------------------------------- 
 *introducing Hooks: Hooks are a new addition in React 16.8, react-hooks let you use state and other React features without writing a class
+*Hooks rules: 
+   -hooks only works inside react components, custom hoos
+   -only call react hooks at the top level
+      -don't call them in nested functions
+      -don't call them in any block statements
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                                                                               React State, useState & Working with Events         
@@ -104,7 +112,7 @@
 
    -when to use state: if you have data, which might change, and where changes to that data should be reflected on the user interface then you need state
 
-   -how to store and change state: we use Class or "useState react-hook" in react
+   -how to store and change state: we use Class or "useState react-hook" in react,...
 
 *store and change state using "useState react-hook":
    -how to use useState react-hook:
@@ -139,6 +147,11 @@
 *container/statefull component: a stateful component is a component that holds and magnage state
 
 *presentational/stateless component: stateless components, by contrast, have no state(just receive state from props), it's just there to output some data
+
+*mounted:
+
+*unmounted:
+
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
                                                                                               CSS Modules    
                                                                               -------------------------------------------
@@ -149,12 +162,268 @@
    -second, import an object(naming "styles") from "css module file", and in that object, you'll have every "class you defined" as "a property of that object"
 
 *what css module does: what the build process does under the hood is it takes those CSS classes and a CSS file and basically changes those class names to be unique
- 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
+                                                                                          Debugging React Apps    
+                                                                              -------------------------------------------
+*Debugging with browser devtools: 
 
+*Debugging with React Devtools:
 
+*notice: React development process, gives the browser a bridge, between "the code that runs" in the browser and the code we wrote(so that we are able to debug)
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
+                                                                                    React Fragments, Portals & Refs   
+                                                                                  -----------------------------------  
+*React.Fragment: 
+   -definition: Fragments allow us to write cleaner code, to end up with less unnecessary HTML elements on the final page
+   -Fragments in practice: import {Fragment} from "react"
 
-  
+*React Portals:
+   -definition: Portals provide a first-class way to render children into a DOM node that exists outside the DOM hierarchy of the parent component
+   -Portals in practice:  <JSX code> {ReactDom.createPortal(<JSX code/>, document.getElementById(""))} </JSX code>
 
+*React Refs: 
+   -definition: allow to get access to other DOM elements and work with them
+   -how refs works:
+      -first, React reaches "all the JSX code " and renders "all the code", then it will actually set "the values stored in ref attribute of element" to "the real native DOM node(element)"
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
+                                                                              Handlng Side Effects by Using the useEffect
+                                                                                  -----------------------------------  
+*Side Effect:
+   -react jobs: render UI & react to "user input"
+   -when we need to reach outside of our React components to do something that's Side Effect(sending a Http request, storing something in browser storage,...)
+
+*Handlng Side Effects: the useEffect hook
+   -definition: useEffect Hook allows you to perform side effects in your components
+   -how the useEffect works:
+      -the useEffect()Hook is called with two arguments with two parameters
+      -the first argument is a function that should be executed "after every component evaluation" if "the specified dependencies" changed
+      -and "the specified dependencies" are the second argument that you pass in, that's an array full of dependencies, and whenever such a dependency changes that first function will re-run
+
+   -cleanup function: 
+      -definition: the cleanup function prevents memory leaks and removes some unnecessary and unwanted behaviors
+      -when cleanup function runs:
+         -before useEffect function runs(except for the very first time when it runs), the cleanup function will run
+         -in addition, the cleanup function will run whenever "the component that your useEffect in", unmounts from the DOM
+
+*unofficial rule: always add everything you refer to inside of useEffect() as a dependency, unless there is a good reason to do that
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
+                                                                                      Managing State: Using Reducers 
+                                                                                  -----------------------------------  
+*useReducers: 
+   -useReducers: advanced of useState when you need "more powerful state management"(when have complex state, or multiple states, multiple ways of changing it,...)
+
+   -example: const [state, dispatchFn] = useReducer(reducerFn, initialState, initFn)
+
+*how to use the useReducers:
+   -useReducer just like useState, always returns an array with exactly two values
+   -the two values you are getting are the latest state snapshot(used in the component re-render), but you also get a function that allows you to update that state snapshot
+      -the state updating function: will dispatch an action, and that action will be consumed by "the first argument(reducer function)" you pass to useReducer
+         -arguments of the state updating function can be anything(string, number,...) but often will be an object which has fields that hold identifier and payload
+         -often the identify field is named "type", example : dispatchEmail({type: "USER_INPUT"})
+         -and "payload" holds value, example : dispatchEmail({type: "USER_INPUT", val: event.target.value})
+   -the reducerFn which gets the latest state snapshot automatically(because the function will be called by React) and it gets the action(object) that was dispatched,
+      -React will call this reducer function whenever a new action is dispatched
+      -example:     const emailReducer = (state, action) => {
+                      if(action.type === "USER_INPUT") {
+                        return {value: action.val, isValid: action.val.includes("@")}
+                      }
+                      return {value: "", isValid: false}
+                    }
+   -now the reducer function then also should do one important thing. It should return a new updated state(it's a bit like the function of the useState hook, but an extended version of that, you could say)
+   -in addition, you can also set some initial state and also an initial function(that should run to set the initial state in case your initial state is a bit more complex, example: HTTP requests,...)
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
+                                                                                     Managing State: the Context API  
+                                                                                  -----------------------------------  
+*the Context API:
+   -React Context is a method to pass props from parent to child component(s), by storing the props in a store(similar in Redux)
+    and using these props from the store by child component(s) without actually passing them manually at each level of the component tree
+
+*using React Context API:
+   -first, create store(an folder) to stores "contexts"(example: auth-context.js)
+      -you can have multiple "contexts", for multiple "global states" in your app and of course, you can also use just one "context" for a bigger State
+   -inside context file:
+      -in there we import React from React, and calls createContext, example: React.createContext(),
+      -Now createContext takes "a default context", and "default context" is just your "state"
+      -a default context can be anything, but often though, it's an object, an object that contains "states" as it’s properties
+      -what we get back from createContext, it will be an object that contains component
+      -Now we don't need this object here though, instead we'll need it in the other components. So we’ll export it as a default to make it available in our files.
+
+   -now we can import this specific Context object and to then use Context in your app, you need to do two things:
+      -You need to provide it, example: <contextObject.provider><App/></contextObject.provider>
+         -Providing means that all the components(include children), you wrap in contextObject.provider should be able to consume that context
+         -how to changing context value using Provider: 
+            -provider have a value property, and in that you can pass an object, that object is your new context object value
+            -you can make it change dynamically by using state of the component it is in
+            -now you would be able to change that object, And whenever it changes, the new value will be passed down to all consuming components to use
+          
+      -And besides providing, you then need to consume it. You need to hook into it, you need to listen to it,
+         -we can listen in two ways:
+             -We can listen by using Consumer:
+                -we wrap the entire component with <objectContext.consumer/>(only the component that we want to using directly the context)
+                -in that consumer we must create a function in the curly bracket, inside that function we must return the component(the component that using context)
+                -remember, the context value will actually only be used if we would consume but without having a provider or a provider that changing the context
+                   -in reality, you will use context to have a value which can change, so we dont want to remove the Provider
+                   -So therefore, to make sure that this does not crash, we go back to the provider, and make provider changing the context, if it's not
+             -or by using a React Hook(recommend): useContext hook allows to use the Context, allows to tap into a Context and listen to it
+                -import useContext hook from react, call it in your react component and you pass the contextObject(import from store), the contextObject that you want to use to it
+                -what you get back, is the context object value, and it's all you need to access to context object value using useContext hook
+
+*recommend: so for better IDE auto-completion, it is a good idea to add all state in your default context object(just with a dummy function of course)
+
+*context limitations:
+   -react context is NOT optimized for high frequence changes(redux can fix it)
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
+                                                                                             Forward Refs  
+                                                                                  -----------------------------------  
+*forward refs: 
+   -function components cannot be given refs, so we forward it(refs) down to the real elements(JSX) that can be given refs, by using forward refs technique, in order to be given ref by react components
+
+*we can make it work by useImperativeHandle : this is something you rarely wanna use, you wanna find an alternative
+   -first, in the component(that holds the real elements), we need to import another hook, and that's the useImperativeHandle hook
+   -then we need to call it(useImperativeHandle) and pass two things to it:     
+      -the first arguments, is the second param of the react component(naming ref)
+         -the second param of the react component only works if the outside component adds the "ref property" to the component(that holds the real elements)
+          and binds this to "value of useRef create in parent component", essentially, "second params" will establish the connection 
+         -now we're still not there yet, this alone would not work, in order to enable this second argument here, we need to export our component function in a special way
+         -we need to wrap it with something special and that's coming from React, and it's called forwardRef, example: React.forwardRef(component)
+         -forwardRef returns a react component, a react component that is capable of being bound to a ref
+      -the second arguments is a function, that return an object, contains all the data(or functions), that can be used by the outside component(used on "value of useRef create in parent component")
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
+                                                                                 Behind The Scenes of React & ReactDom
+                                                                                  -----------------------------------    
+*what is the job of React:
+   -React only cares about components. It cares about props, which is basically data you pass to components to make components configurable and to enable parent-child component communication
+   -React cares about state which is internal data inside of a component
+   -And React cares about context which is component-wide data(Now of course, React has a couple of other features built in as well)
+   -And React hands all that information regarding what changed and what should be visible on the screen, no matter what screen that is, for example, it hands it off to ReactDOM
+
+*what is the job of ReactDOm: ReactDOM is responsible for working with the real DOM, which is part of the browser, and therefore ReactDOM is responsible for bringing something onto the screen
+
+*how React hands off "what should be visible" to ReactDom:
+   -React uses a concept called the virtual DOM. It determines how the component tree currently looks like and what it should look like(after a state update,...)
+   -and after "Virtual DOM Diffing", react then hand "the differences" off to ReactDOM(which now knows about the differences) and which then knows how it should manipulate the real DOM to match that virtual DOM
+
+*Virtual DOM Diffing by React: Snapshots & Diffing
+   -snapshots: previous and current evaluation result of virtual Dom
+   -diffing: react determine the difference between both snapshots, and it would report this change to ReactDOM, so that ReactDOM can update the real DOM
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
+                                                                                             React.memo()
+                                                                                  -----------------------------------  
+*react.memo: that "a component it wrapped" should only re-execute under certain circumstances(that the props changed)
+
+*notice: you're trading the performance cost of re-evaluating the component for the performance cost of "comparing props(memo)"
+
+*comparing props by memo: a regular comparison operator(be careful with reference prop values)
+
+*example: export default React.memo(DemoOutput)
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
+                                                                           Preventing Function Re-Creation with useCallback()
+                                                                                  -----------------------------------  
+*useCallback hook: 
+   -make React Memo work for prop values that are objects as well
+   -useCallback is a hook that allows us to basically store(save) a function across "component executions"
+
+*useage: 
+   -we just wrapped the function we wanna save as the first argument with it, 
+   -the second argument is an array of dependencies, if dependencies change, the function is re-evaluated(can take new data)
+   -and useCallback then returns that "stored function"
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
+                                                                                          React useMemo Hook
+                                                                                  -----------------------------------  
+*useMemo: basically allows you to memoize, any kind of data which you want to store, just like useCallback does it for functions
+
+*useage: 
+   -the first argument is a function, that is not a function that will be memorized. Instead, that function should return what you want to store(array, object, string,...)
+   -the second argument is an array of dependencies, the first argument only rebuild, if dependencies changed 
+
+*notice:
+   -react.memo memorizing data
+   -useCallback memorizing function
+   -you will use useMemo far less often than you use useCallback, because memorizing functions is much more useful than memorizing data
+   -You essentially wanna memorize data if it would be performance-intensive
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
+                                                                                 Scheduling, Batching & Manages State
+                                                                                  -----------------------------------  
+*how React manages state:
+   -for the first time a component is rendered, useState when executed, creates a new state variable which is handed off to React(managed by React)
+   -React then memorizes to which component that(state) belongs. And it uses the default value to initialize the state
+   -after "state updating", the component is re-evaluated, useState is being called, and no new state is being created(because React recognizes that it already has a state for this component)
+   -Instead, it simply updates the state as needed
+   -now React only do state management and updating. It never reinitialize the state, unless the component was totally removed from the DOM in the meantime
+
+*Schedules: 
+   -calling "state updating functions" in general "schedules" "a state update" that then become "a scheduled state change":
+      -schedules state change: now React plans on processing it, but React doesn't process that immediately though(most of the time, "schedules state change" will be processed very fast instantly)
+   -React reserves the right of actually postponing that state change
+      -For example, because a lot of other performance intensive tasks are going on at the same moment
+      -potentially tasks(input field where the user is able to type something), that React considers to have a higher priority than changing some text on the screen
+      -now, what React does is, it guarantees you that the order of state changes for one in the same type of state is guaranteed
+   -and once that state change was processed, React will re-evaluate the component, it will re-run the component function
+
+*Batching: 
+   -if you call two or more "state updates function" in the same synchronous code, after each other(for example, in one function)
+   -React will batch those "state updates function" together into "one state update", which then changes two or more different states, in order, but in one "schedules state change"
+   -now after all of that, the component only be re-executed(evaluate) one time
+
+*notice: because of the scheduling, where of course you might have multiple "scheduled state changes" at the same time and referring to the same value, so that be aware of that
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
+                                                                                             Custom Hooks
+                                                                                  -----------------------------------  
+*Custom Hooks
+   -when you have component logic that needs to be used by multiple components, we can extract that logic to a custom Hook
+
+*how to create a custom hook: 
+   -we store custom hook in a standalone file. And the function which you do create "has to" start with a "use" in its name, example : const useCounter = () => {}
+   -It will be a normal function in the end but "the use at their beginning" signals to react that it will be a custom hook(and you will use that function by respecting the rules of hooks)
+
+*how to use custom hook: import in the component that you want to use, and use the return value, that you return from your custom hook
+
+*notice: if you call a custom hook in one of your components and that custom hook registers a state or an effect, then this state and effect will be tied to the component in which you use your custom hook
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
+                                                                          Diving into Redux(An Alternative To The Context API)
+                                                                                  -----------------------------------  
+*what is Redux:
+   -Redux is a state management system for a cross-component(or app-wide state)
+   -So both React Context and Redux are there to help us manage such cross-component or app-wide States
+
+*local state: state that belongs to a single component
+   -typically we manage such local state inside of a component with useState or if it's more complex maybe with useReducer
+
+*cross-component state: state that affects multiple components
+   -we can also implement that with useState or useReducer, we then just need to pass props around so we need to build those prop chains
+
+*app-wide state: state that affects the entire app(most/all components)
+   -we can also manage this with the useState, useReducer and then by passing state values and updating functions around full props
+
+*why we need Redux:
+   -you have large amounts of application state that are needed in many places in the app
+   -the app state is updated frequently
+   -the logic to update that state may be complex
+   -the app has a medium or large-sized codebase, and might be worked on by many people
+
+*central data store:
+   -a store holds the whole state tree of your entire application(only have one store in entire app)
+
+*component subscription:
+   -components set up subscriptions to "central data store", so then we can use it from inside our components, and whenever the data changes, the store notifies components
+
+*reducer function:
+   -the function is responsible, for listening to actions and mutating existing states in the store, based on the desired operation of actions
+
+*action:
+   -actions(object) contain the kind of operation, the "reducer" should perform
+
+*dispatch:
+   -a function that lets components dispatch actions to reducer
 
 
 
