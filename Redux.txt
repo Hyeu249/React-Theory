@@ -1,0 +1,338 @@
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
+                                                                          Diving into Redux(An Alternative To The Context API)
+                                                                                  -----------------------------------  
+*what is Redux:
+   -Redux is a state management system for a cross-component(or app-wide state)
+   -So both React Context and Redux are there to help us manage such cross-component or app-wide States
+
+*local state: state that belongs to a single component
+   -typically we manage such local state inside of a component with useState or if it's more complex maybe with useReducer
+
+*cross-component state: state that affects multiple components
+   -we can also implement that with useState or useReducer, we then just need to pass props around so we need to build those prop chains
+
+*app-wide state: state that affects the entire app(most/all components)
+   -we can also manage this with the useState, useReducer and then by passing state values and updating functions around full props
+
+*why we need Redux:
+   -you have large amounts of application state that are needed in many places in the app
+   -the app state is updated frequently
+   -the logic to update that state may be complex
+   -the app has a medium or large-sized codebase, and might be worked on by many people
+
+*central data store:
+   -a store holds the whole state tree of your entire application(only have one store in entire app), and notify whenever the data changes to who subscripted
+
+*component subscription:
+   -components set up subscriptions to "central data store", so then we can use it from inside our components, and get notifed
+
+*reducer function:
+   -the function is responsible, for listening to actions and mutating existing states in the store, based on the desired operation of actions
+
+*action:
+   -actions(object) contain the kind of operation, the "reducer" should perform
+
+*dispatch:
+   -a function that lets components dispatch actions to reducer
+
+*core concepts(Redux):   
+
+                     -----------------▶  Reducer Function
+                     🔺 forwarded to           
+                     ||                         ||
+                     ||                         ||
+                     ||                         ||    mutates(Changes) "store data"
+                                                ||   
+                   Action                       || 
+             (kind of operation)                ||
+                     🔺                         🔻
+                     ||
+                     ||                "Central Data(State) Store" 
+                     ||          
+                     ||                         ||
+                     ||                         ||   subscription
+                     ||                         ||
+                     ||                         🔻
+                     ||    dispatch
+                     ◀------------------   Components
+                                       
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
+                                                                               Redux Basic in Practice(all steps in one file) & have code*  
+                                                                                  -----------------------------------  
+*create "store" in a separate file: 
+   -that store(const store) should manage some data, and the data which it manages is in the end, determined by the "reducer function"
+   -const store = redux.createStore()
+   
+*Second: create "reducer function"
+   -reducer function should be a pure function(same values should produce the same output, and no side effects)
+      -the reducer function receive two parameters, the state(old, existing) and the action(that was dispatched)
+         -when the "store" is initialized, Redux will execute the "reducer" for the first time, in that time, state is undefined
+         -so we need to set a default value for the state(for the first time)
+      -the reducer function return a "new state object(it can be anything)"
+   -example:
+                 const reducerFunction = (state = { counter: 0 }, action) => {     -----> // set a default state value for the first time
+                    return { counter: state.counter + 1 }                          
+                 };    
+
+                 const store = redux.createStore(reducerFunction) 
+ 
+*create someone(function) who subscribes to the store  
+   -store.getState(): it will give us the latest state snapshot
+   -store.subscribe(): the subscribe method wants a subscriber function which Redux will then execute for us whenever "the data in the store changed(human dispatch an action)"
+   -example:
+                 const subscriberFunction = () => {
+                    const latestState = store.getState();   -----> // get new state
+                    console.log(latestState)     -----> subscriberFunction has yet executed
+                 };
+
+                 store.subscribe(subscriberFunction);      -----> // subscribing
+
+*create dispatch function
+   -store.dispatch(): dispatch is a method which dispatches a JavaScript object
+      -it's a JavaScript object with a " type property", which acts as an identifier
+      -typically you use a string here and then this should be a unique string
+      -so that every action, every distinct action, which you dispatch leads to different things being done in the reducer
+   -example:
+                 const reducerFunction = (state = { counter: 0 }, action) => {     -----> //"reducerFunction" will be called, if there is an action coming 
+                    if (action.type === "increment") {                             -----> //checking type to identify the operation the "reducer" should perform
+                       return { counter: state.counter + 1 }                                 
+                    };
+ 
+                    return state
+                 };     
+            
+                 store.dispatch({type: "increment"})     -----> //dispatch an action(object of type to identify)
+
+*notice:
+   -Redux will dispatch a default initialization action with a value of undefined, when the "store" is initialized(the first time store is create)
+   -store.subscribe() only call subscriber function, only when the data in the store changed(human dispatch an action), not the default initialization action by redux
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
+                                                                         Creating Redux for React in Practice with React-Redux 
+                                                                                  -----------------------------------          
+*Create Store in React app:
+   -components can access "default state" for the first time, no need to dispatch to access
+
+   -src/store/index.js  
+   -example:
+                 import { createStore } from "redux"
+
+                 const reducerFunction = (state = { counter: 0 }, action) => {     ----->//components can access "default state" for the first time, no need to dispatch to access
+                    if (action.type === "increment") {                             
+                       return { counter: state.counter + 1 }                                 
+                    };
+
+                    if (action.type === "decrement") {                             
+                       return { counter: state.counter - 1 }                                 
+                    };
+
+                    return state
+                 };     
+
+                 const store = createStore(reducerFunction)     ----->//create store
+
+                 export default store    
+
+*providing the "store":
+   -The <Provider> component makes the "Redux store" available to any nested components that need to access the Redux store
+
+   -src/index.js
+   -example:
+                 import { Provider } from "react-redux"
+                 import store from "./store/index.js"
+               
+                 const root = ReactDOM.createRoot(document.getElementById("root"));
+                 root.render(<Provider store={store}><App/></Provider>)     -----> //providing
+
+*subscription & using "Redux store"(can be used inside any component):
+   -useSelector take a function, a function basically determines which piece of data we wanna extract from our store
+      -a function of which will receive the state(first param) managed by Redux
+      -and then we return the part of the state which you wanna extract, return property of object(state)
+   -useSelector: it subscribe to the Redux store, and run your selector whenever an action is dispatched
+   -if you ever would unmount this component, useSelector would also automatically clear the subscription for you
+   -example:
+                 import { useSelector } from "react-redux"
+
+                 const Counter = () => {
+                    const counter = useSelector(state => state.counter)     ----->//subscripting & using
+                       return <Display/>                
+                 }
+
+*dispatching actions(can be used inside any component):
+   -useDispatch() with no argument, return a function
+   -a function we can call, which will dispatch an action to our Reducer
+   -example:
+                 import { useDispatch } from "react-redux"
+
+                 const Counter = () => {
+                    const counter = useSelector(state => state.counter)
+                    const dispatch = useDispatch()     ----->//dispatching
+
+                    const incrementHandler = () => {
+                       dispatch({type : "increment"})
+                    };
+
+                    return <Display onClick={incrementHandler}/>                
+                 }                 
+
+*attaching payloads to action:
+   -just adding extra payload to property of action object, and you can access it from the reducer
+   -example:
+
+                 const reducerFunction = (state = { counter: 0 }, action) => {     ----->//inside reducer function
+                    if (action.type === "increase") {                             
+                       return { counter: state.counter + action.amount }                                 
+                    };
+
+                    return state
+                 };   
+
+                 -------------------------------------------------------------------------------------------
+
+                 const increaseHandler = () => {                 -----> inside component
+                    dispatch({type : "increase", amount: 5})
+                 };
+
+*notice:
+   -never mutate your old state, always return a "brand new snapshot" in your reducer, if not, it will lead to bugs,...
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
+                                                                                       Introducing Redux Toolkit
+                                                                                   -----------------------------------               
+*Redux Toolkit: 
+   -makes it easier to write good Redux applications and speeds up development   
+   -Redux Toolkit package included redux library
+
+*Create Store & Reducer in React app:
+   -createSlice: 
+      -a function take an object that accepts an initial state(components can access for the first time), an object of reducer functions, and a "slice name",
+      -and automatically generates action creators and action types that correspond to the reducers and state
+   -configureStore: like createStore creates a store but it makes merging multiple reducers into one reducer easier thereafter
+      -the key names of "object reducer" are the property name of object state, that the useSelecter give us as the first param of function argument
+
+   -src/store/index.js
+   -example:
+                 import { createStore } from "redux"
+                 import { createSlice, configureStore } from "@reduxjs/toolkit"
+             
+                 const initialState = { counter: 0, showCounter: true }
+
+                 const counterSlice = createSlice({
+                    name: "counter",   ----->//identifier of the piece of state 
+                    initialState,     ----->// components can access for the first time
+                    reducers: {
+                       increment(state, action) {     ----->//method that automatically be called depending on which action was triggered
+                          state.counter++             ----->//here we are allowed to mutate the state, reduxjs/toolkit will clone and overwrite
+                       },     
+
+                       decrement() {},
+                       increase() {},
+                       toggleCounter() {}
+                    }
+                 })
+
+                 const store = createStore(counterSlice.reducer)     ----->//if only have one reducer   
+                 
+                 -------------------------------------------------------------------------------------------------------                
+
+                 const store = configureStore({                    ----->//the way to create a store for multiple reducers
+                    reducer: { counter: counterSlice.reducer },    ----->//useSelector(state => state.counter)
+                 })    
+
+*providing the "store": like creating Redux for React
+
+*subscription & using "Redux store": like creating Redux for React
+
+*dispatching actions & attaching payload:
+   -"action creator": 
+      -a function that returns an "action object(that dispatch function need)" when called
+         -any value you pass in that function as the first argument, will be stored in an extra field named payload
+      -the "action objects" created by the "action creators" already have a type property with a unique identifier               
+      -"action creators" are held by "createSlice().actions(object)", with the property names matching the method names we have in our reducers of createSlice function
+
+   -src/store/index.js
+   -example:     
+                 export const counterActions = counterSlice.actions     -----> this holds "action creators"
+        
+                 ---------------------------------------------------------------------------------------------------------
+
+                 import { useDispatch } from "react-redux"
+                 import { counterActions } from "../store/index.js"
+
+                 const Counter = () => {
+                    const counter = useSelector(state => state.counter)
+                    const dispatch = useDispatch()     ----->//dispatching
+
+                    const increaseHandler = () => {
+                       dispatch(counterActions.increase(10))     ----->// { type: SOME_UNIQUE_IDENTIFUER, payload: 10 }
+                    };
+
+                    return <Display onClick={incrementHandler}/>                
+                 }   
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
+                                                                                Advanced Redux: Side Effect, Async Tasks
+                                                                                   -----------------------------------    
+*where should side-effects and async tasks be executed:
+   -inside the components
+      -using useEffect to deal with side-effects, async tasks, and dispatch to the store to store the value
+   -inside the action creators
+
+*synchronous, side-effect free code(data transformations):
+   -should prefer Reducers
+
+*what is a "Thunk":
+   -a function that delays an action until later
+   -an action creator function that does NOT return the action itself, but another function(that deal with side-effects, async tasks) which eventually returns the action or maybe NOT
+
+*create our own "action creator(Thunk)":
+   -if you're dispatching a function(that deal with side-effects, async tasks), instead of action object, redux will automatically execute that function for you
+   -that function will receive the dispatch function as the first param, so that you can dispatch again 
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                                THE END
+*notice:
+*have code: 
+   -code/redux-basis-all-in-one-file.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
