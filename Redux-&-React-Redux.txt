@@ -209,7 +209,7 @@
       -a function take an object that accepts an initial state(components can access for the first time), an object of reducer functions, and a "slice name",
       -and automatically generates action creators and action types that correspond to the reducers and state
    -configureStore: like createStore creates a store but it makes merging multiple reducers into one reducer easier thereafter
-      -the key names of "object reducer" are the property name of object state, that the useSelecter give us as the first param of function argument
+      -the key names of "object reducer" are the property name of state object, that the useSelecter give us as the first param of function argument
 
    -src/store/index.js
    -example:
